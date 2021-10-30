@@ -8,7 +8,7 @@ const bootcampSchema = new Schema({
   },
   rating: {
     type: Number,
-    required: [true.valueOf, "Please provide a rating for a bootcamp"],
+    required: [true, "Please provide a rating for a bootcamp"],
   },
   description: {
     type: String,
