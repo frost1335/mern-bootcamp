@@ -1,4 +1,5 @@
 import {
+  Button,
   CircularProgress,
   Container,
   FormControl,
@@ -58,6 +59,7 @@ const BootcampsPage = () => {
   const [priceOrder, setPriceOrder] = useState("descending");
 
   const [filter, setFilter] = useState("");
+  const [sorting, setSorting] = useState();
 
   const updateUIValues = (uiValues) => {
     setSliderMax(uiValues.maxPrice);
@@ -90,6 +92,14 @@ const BootcampsPage = () => {
           query = filter;
         }
 
+        if (sorting) {
+          if (query.length === 0) {
+            query = `?sort=${sorting}`;
+          } else {
+            query = query + "&sort=" + sorting;
+          }
+        }
+
         const { data } = await axios({
           method: "GET",
           url: `/api/v1/bootcamps${query}`,
@@ -108,7 +118,7 @@ const BootcampsPage = () => {
     fetchData();
 
     return () => cancel();
-  }, [filter, params]);
+  }, [filter, params, sorting]);
 
   const handlePriceInputChange = (e, type) => {
     let newRange;
@@ -142,6 +152,23 @@ const BootcampsPage = () => {
     setFilter(urlFilter);
 
     history.push(urlFilter);
+  };
+
+  const handleSortChange = (e) => {
+    setPriceOrder(e.target.value);
+
+    if (e.target.value === "ascending") {
+      setSorting("price");
+    } else if (e.target.value === "descending") {
+      setSorting("-price");
+    }
+  };
+
+  const clearAllFilters = (e) => {
+    setFilter("");
+    setSorting("");
+    setPriceRange([0, sliderMax]);
+    history.push("/");
   };
 
   return (
@@ -195,7 +222,12 @@ const BootcampsPage = () => {
             <Typography gutterBottom>Sort By</Typography>
 
             <FormControl component="fieldset" className={classes.filters}>
-              <RadioGroup aria-label="price-order" name="price-order" value={priceOrder} >
+              <RadioGroup
+                aria-label="price-order"
+                name="price-order"
+                value={priceOrder}
+                onChange={handleSortChange}
+              >
                 <FormControlLabel
                   value="descending"
                   disabled={loading}
@@ -213,6 +245,9 @@ const BootcampsPage = () => {
             </FormControl>
           </Grid>
         </Grid>
+        <Button sixe="small" color="primary" onClick={clearAllFilters}>
+          Clear All
+        </Button>
       </Paper>
 
       {/* Bootcamps Listing */}
